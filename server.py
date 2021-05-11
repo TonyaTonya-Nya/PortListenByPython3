@@ -6,7 +6,7 @@ import threading
 import datetime
 
 threads = []
-host = "localhost"
+host = "0.0.0.0"
 
 
 def server(port):
@@ -33,7 +33,7 @@ def server(port):
         print("Client:{0}".format(addr))
 
         try:
-            request = clientsocket.recv(4096).decode()
+            request = clientsocket.recv(4096).decode("utf-8", "ignore")
         except socket.error as e:
             print("Error receiving data: %s" % e)
             sys.exit(1)
