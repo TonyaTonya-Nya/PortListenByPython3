@@ -6,7 +6,7 @@ import threading
 
 
 
-host = "127.0.0.1"
+host = "0.0.0.0"
 
 with open('setting.json', 'r') as jsonfile:
     ports = json.loads(jsonfile.read())
