@@ -75,22 +75,15 @@ def log(addr, request, host):
             method = ele
             break
 
-    data = [
-        "{0}".format(addr),
-        "{0}".format(host),
-        method,
-        datetime.datetime.strftime(timestamp, '%Y-%m-%d %H:%M:%S')
-    ]
+    data = {
+        "clientIP": "{0}".format(addr),
+        "serverIP": "{0}".format(host),
+        "method": method,
+        "timeStamp": datetime.datetime.strftime(timestamp, '%Y-%m-%d %H:%M:%S')
+    }
 
-   # with open(datetime.datetime.today().strftime("%Y-%m-%d")+".json", 'a') as logfile:
-   #     json.dump(data, logfile, indent=4)
-
-    with open(datetime.datetime.today().strftime("%Y-%m-%d")+".txt", 'a') as logfile:
-        clientIP=data[0].split(',')
-        serverIP=data[1].split(',')
-        s=data[3]+"/"+clientIP[0].replace('(','')+"/"+clientIP[1].replace(')','')+"/"+serverIP[1].replace(')','')+"/\n"+request+"\n\n\n"
-        logfile.write(s)
-	
+    with open(datetime.datetime.today().strftime("%Y-%m-%d")+".json", 'a') as logfile:
+        json.dump(data, logfile, indent=4)
 
 
 def main():
