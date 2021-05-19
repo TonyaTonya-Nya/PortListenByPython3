@@ -1,9 +1,24 @@
-install
+請先按此教學安裝MYSQL
+https://andy6804tw.github.io/2019/01/29/ubuntu-mysql-setting/
+
+安裝完成後如果無法使用root進入mysql請按以下這篇排解
+http://blog.ufirst.tw/ubuntu-18-04-mysql-root-password%E8%A8%AD%E5%AE%9Aroot-%E5%AF%86%E7%A2%BC/
+
+要更改port請看這篇
+https://blog.csdn.net/yzf279533105/article/details/106527772
+
+1.執行MySQL
+service mysql restart
+mysql -u root -p
+show variables like 'port';
+
+2.參照此篇流程，執行test.sql以產生資料庫及資料表
+https://www.jianshu.com/p/0621648c57fa
+
+3.安裝python3相關插件
 pip3 install PyMySQL
 
-
-
-run 
+4.執行
 python3 server.py
 python3 client.py
 
