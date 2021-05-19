@@ -1,3 +1,9 @@
-use 
+install
+pip3 install PyMySQL
+
+
+
+run 
 python3 server.py
 python3 client.py
+

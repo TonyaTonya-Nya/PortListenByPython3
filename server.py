@@ -1,12 +1,20 @@
 import socket
 import sys
 import json
-import asyncio
 import threading
 import datetime
+import pymysql
 
+
+with open('setting.json', 'r') as jsonfile:
+    setting = json.loads(jsonfile.read())
+    jsonfile.close()
+    
 threads = []
 host = "0.0.0.0"
+table_name = setting.get("db_table_name")
+db_settings = setting.get("db_settings")
+lock = threading.Lock()
 
 
 def server(port):
@@ -39,9 +47,7 @@ def server(port):
             sys.exit(1)
 
         if not len(request):
-            request=""
-
-        print(request)
+            request = ""
 
         # 寫入Log
         log(addr, request, serversocket.getsockname())
@@ -82,27 +88,43 @@ def log(addr, request, host):
         datetime.datetime.strftime(timestamp, '%Y-%m-%d %H:%M:%S')
     ]
 
-   # with open(datetime.datetime.today().strftime("%Y-%m-%d")+".json", 'a') as logfile:
-   #     json.dump(data, logfile, indent=4)
+    clientip = data[0].split(',')
+    serverip = data[1].split(',')
 
-    with open(datetime.datetime.today().strftime("%Y-%m-%d")+".txt", 'a') as logfile:
-        clientIP=data[0].split(',')
-        serverIP=data[1].split(',')
-        s=data[3]+"/"+clientIP[0].replace('(','')+"/"+clientIP[1].replace(')','')+"/"+serverIP[1].replace(')','')+"/\n"+request+"\n\n\n"
-        logfile.write(s)
-	
+    sql = """INSERT INTO %s(Time,IP, ClientPort, ServerPort, Method) VALUES (%s,%s, %d, %d, %s)""" % (
+        table_name,
+        "'"+data[3]+"'",
+        clientip[0].replace('(', ''),
+        int(clientip[1].replace(')', '')),
+        int(serverip[1].replace(')', '')),
+        "'"+request+"'"
+    )
+
+    try:
+        lock.acquire()  # 上互斥鎖
+        db.ping(True)  # MYSQL保持連線
+        cursor = db.cursor()
+        cursor.execute(sql)
+        db.commit()
+        lock.release()  # 下互斥鎖
+
+    except Exception as e:
+        print(e)
 
 
-def main():
-    for port in ports:
-        t = threading.Thread(target=server, args=(port,))
-        threads.append(t)
-
-    for t in threads:
-        t.start()
-
-
-with open('setting.json', 'r') as jsonfile:
+with open('ports.json', 'r') as jsonfile:
     ports = json.loads(jsonfile.read())
     jsonfile.close()
-main()
+
+try:
+    db = pymysql.connect(**db_settings)
+except Exception as e:
+    print(e)
+    sys.exit(1)
+
+for port in ports:
+    t = threading.Thread(target=server, args=(port,))
+    threads.append(t)
+
+for t in threads:
+    t.start()
